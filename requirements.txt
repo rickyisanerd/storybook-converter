@@ -1,0 +1,7 @@
+flask>=3.0.0
+gunicorn>=21.2.0
+edge-tts>=6.1.9
+pydub>=0.25.1
+python-docx>=1.1.0
+gTTS>=2.5.0
+pyttsx3>=2.90
