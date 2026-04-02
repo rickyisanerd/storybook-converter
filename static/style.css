@@ -1,0 +1,429 @@
+/* ============================================================
+   Audiobook Converter — stylesheet
+   ============================================================ */
+
+/* ── Reset / base ─────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --color-bg:          #0f1117;
+  --color-surface:     #1a1d27;
+  --color-surface-alt: #22263a;
+  --color-border:      #2e3350;
+  --color-primary:     #6c63ff;
+  --color-primary-h:   #8b85ff;
+  --color-success:     #22c55e;
+  --color-warning:     #f59e0b;
+  --color-error:       #ef4444;
+  --color-text:        #e2e8f0;
+  --color-muted:       #8892a4;
+  --radius:            10px;
+  --shadow:            0 4px 24px rgba(0,0,0,.45);
+  --transition:        .2s ease;
+}
+
+html { font-size: 16px; }
+
+body {
+  font-family: "Inter", "Segoe UI", system-ui, sans-serif;
+  background: var(--color-bg);
+  color: var(--color-text);
+  line-height: 1.6;
+  min-height: 100vh;
+  padding: 2rem 1rem 4rem;
+}
+
+/* ── Layout ───────────────────────────────────────────────── */
+.container {
+  max-width: 760px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+}
+
+/* ── Header ───────────────────────────────────────────────── */
+.site-header {
+  text-align: center;
+  padding: 1rem 0 .5rem;
+}
+
+.site-header h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: -.5px;
+}
+
+.site-header .subtitle {
+  color: var(--color-muted);
+  margin-top: .5rem;
+  font-size: .95rem;
+  max-width: 560px;
+  margin-inline: auto;
+}
+
+/* ── Card ─────────────────────────────────────────────────── */
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 2rem;
+  box-shadow: var(--shadow);
+}
+
+.card h2 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  padding-bottom: .75rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+/* ── Form elements ────────────────────────────────────────── */
+.form-group {
+  margin-bottom: 1.4rem;
+}
+
+.form-group label {
+  display: block;
+  font-size: .875rem;
+  font-weight: 500;
+  margin-bottom: .45rem;
+  color: var(--color-text);
+}
+
+.required {
+  color: var(--color-error);
+  margin-left: 2px;
+}
+
+.hint {
+  font-size: .78rem;
+  color: var(--color-muted);
+  margin-top: .35rem;
+}
+
+.hint-inline {
+  font-size: .78rem;
+  color: var(--color-muted);
+  font-weight: 400;
+}
+
+select {
+  width: 100%;
+  padding: .6rem .85rem;
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  color: var(--color-text);
+  font-size: .9rem;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%238892a4' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right .85rem center;
+  padding-right: 2.2rem;
+  transition: border-color var(--transition);
+}
+
+select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+/* ── File drop zone ───────────────────────────────────────── */
+.file-drop-zone {
+  position: relative;
+  border: 2px dashed var(--color-border);
+  border-radius: var(--radius);
+  padding: 2rem 1rem;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color var(--transition), background var(--transition);
+}
+
+.file-drop-zone:hover,
+.file-drop-zone.drag-over {
+  border-color: var(--color-primary);
+  background: rgba(108, 99, 255, .06);
+}
+
+.file-drop-zone input[type="file"] {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+}
+
+.drop-hint {
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .5rem;
+  color: var(--color-muted);
+  font-size: .9rem;
+}
+
+.drop-icon { font-size: 2rem; }
+
+.file-drop-zone.has-file {
+  border-color: var(--color-success);
+  background: rgba(34, 197, 94, .05);
+}
+
+.file-drop-zone.has-file .drop-hint {
+  color: var(--color-success);
+}
+
+/* ── Range slider ─────────────────────────────────────────── */
+input[type="range"] {
+  width: 100%;
+  accent-color: var(--color-primary);
+  cursor: pointer;
+  margin-top: .4rem;
+}
+
+.range-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: .72rem;
+  color: var(--color-muted);
+  margin-top: .25rem;
+}
+
+/* ── Buttons ──────────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: .45rem;
+  padding: .65rem 1.4rem;
+  border: none;
+  border-radius: 7px;
+  font-size: .9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--transition), opacity var(--transition),
+              transform var(--transition);
+}
+
+.btn:active { transform: scale(.97); }
+
+.btn-primary {
+  background: var(--color-primary);
+  color: #fff;
+  width: 100%;
+  justify-content: center;
+  font-size: 1rem;
+  padding: .8rem;
+  margin-top: .5rem;
+}
+
+.btn-primary:hover:not(:disabled) { background: var(--color-primary-h); }
+
+.btn-primary:disabled {
+  opacity: .55;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background: var(--color-surface-alt);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+}
+
+.btn-secondary:hover { border-color: var(--color-primary); color: var(--color-primary-h); }
+
+/* ── Progress section ─────────────────────────────────────── */
+.job-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  font-size: .85rem;
+  color: var(--color-muted);
+}
+
+.job-meta code {
+  font-family: "Fira Code", "Courier New", monospace;
+  font-size: .8rem;
+  background: var(--color-surface-alt);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.status-badge {
+  padding: .2rem .7rem;
+  border-radius: 999px;
+  font-size: .75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  background: var(--color-surface-alt);
+  color: var(--color-muted);
+}
+
+.status-badge.pending    { background: rgba(245,158,11,.15); color: var(--color-warning); }
+.status-badge.processing { background: rgba(108,99,255,.2);  color: var(--color-primary-h); }
+.status-badge.complete   { background: rgba(34,197,94,.15);  color: var(--color-success); }
+.status-badge.error      { background: rgba(239,68,68,.15);  color: var(--color-error); }
+
+.progress-bar-wrap {
+  height: 10px;
+  background: var(--color-surface-alt);
+  border-radius: 999px;
+  overflow: hidden;
+  margin-bottom: .6rem;
+}
+
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-primary), var(--color-primary-h));
+  border-radius: 999px;
+  transition: width .4s ease;
+}
+
+.progress-label {
+  font-size: .82rem;
+  color: var(--color-muted);
+  margin-bottom: 1.2rem;
+}
+
+/* ── Chapter list ─────────────────────────────────────────── */
+.chapter-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+}
+
+.chapter-item {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  padding: .6rem .9rem;
+  background: var(--color-surface-alt);
+  border-radius: 7px;
+  font-size: .875rem;
+  border: 1px solid transparent;
+  transition: border-color var(--transition);
+}
+
+.chapter-item.done   { border-color: rgba(34,197,94,.3); }
+.chapter-item.active { border-color: rgba(108,99,255,.4); }
+
+.chapter-icon {
+  font-size: 1rem;
+  flex-shrink: 0;
+  width: 1.4rem;
+  text-align: center;
+}
+
+.chapter-title { flex: 1; }
+
+.chapter-status {
+  font-size: .75rem;
+  color: var(--color-muted);
+}
+
+.chapter-item.done .chapter-status { color: var(--color-success); }
+
+/* ── Error box ────────────────────────────────────────────── */
+.error-box {
+  margin-top: 1rem;
+  padding: .9rem 1.1rem;
+  background: rgba(239,68,68,.1);
+  border: 1px solid rgba(239,68,68,.35);
+  border-radius: 7px;
+  color: var(--color-error);
+  font-size: .875rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* ── Results section ──────────────────────────────────────── */
+.results-actions {
+  display: flex;
+  gap: .75rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+
+.download-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+  margin-bottom: 1.25rem;
+}
+
+.download-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: .6rem .9rem;
+  background: var(--color-surface-alt);
+  border-radius: 7px;
+  font-size: .875rem;
+}
+
+.download-item a {
+  color: var(--color-primary-h);
+  text-decoration: none;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+}
+
+.download-item a:hover { text-decoration: underline; }
+
+.download-item .chapter-num {
+  color: var(--color-muted);
+  font-size: .78rem;
+  min-width: 2.5rem;
+}
+
+/* ── Manifest viewer ──────────────────────────────────────── */
+.manifest-viewer {
+  margin-top: 1.25rem;
+  border-top: 1px solid var(--color-border);
+  padding-top: 1.25rem;
+}
+
+.manifest-viewer h3 {
+  font-size: 1rem;
+  margin-bottom: .75rem;
+}
+
+.manifest-viewer pre {
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
+  border-radius: 7px;
+  padding: 1rem;
+  font-size: .78rem;
+  font-family: "Fira Code", "Courier New", monospace;
+  overflow-x: auto;
+  white-space: pre;
+  color: var(--color-text);
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+/* ── Utility ──────────────────────────────────────────────── */
+.hidden { display: none !important; }
+
+/* ── Responsive ───────────────────────────────────────────── */
+@media (max-width: 520px) {
+  .card { padding: 1.25rem; }
+  .site-header h1 { font-size: 1.5rem; }
+  .results-actions { flex-direction: column; }
+  .results-actions .btn { width: 100%; justify-content: center; }
+}

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Audiobook Converter</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <div class="container">
+
+    <!-- ── Header ─────────────────────────────────────────────────── -->
+    <header class="site-header">
+      <h1>📖 Audiobook Converter</h1>
+      <p class="subtitle">
+        Upload a manuscript (.docx or .txt) and generate a chapter-by-chapter
+        MP3 audiobook using AI voices — no command line required.
+      </p>
+    </header>
+
+    <!-- ── Upload form ────────────────────────────────────────────── -->
+    <section class="card" id="upload-section">
+      <h2>Upload Manuscript</h2>
+
+      <form id="upload-form" novalidate>
+
+        <!-- File picker -->
+        <div class="form-group">
+          <label for="file-input">Manuscript file <span class="required">*</span></label>
+          <div class="file-drop-zone" id="drop-zone">
+            <input type="file" id="file-input" name="file"
+                   accept=".docx,.txt,.md" required />
+            <div class="drop-hint">
+              <span class="drop-icon">📄</span>
+              <span id="file-label">Drag &amp; drop or <u>browse</u></span>
+            </div>
+          </div>
+          <p class="hint">Supported formats: .docx, .txt, .md — max 50 MB</p>
+        </div>
+
+        <!-- TTS engine -->
+        <div class="form-group">
+          <label for="engine-select">TTS Engine</label>
+          <select id="engine-select" name="engine">
+            <option value="edge-tts" selected>
+              edge-tts — Microsoft Neural (best quality, needs internet)
+            </option>
+            <option value="gtts">
+              gTTS — Google Translate TTS (needs internet)
+            </option>
+            <option value="pyttsx3">
+              pyttsx3 — Offline system voices
+            </option>
+          </select>
+        </div>
+
+        <!-- Voice (edge-tts only) -->
+        <div class="form-group" id="voice-group">
+          <label for="voice-select">Voice <span class="hint-inline">(edge-tts only)</span></label>
+          <select id="voice-select" name="voice">
+            <optgroup label="Male — US English">
+              <option value="en-US-AndrewNeural" selected>en-US-AndrewNeural (deep narrator)</option>
+              <option value="en-US-GuyNeural">en-US-GuyNeural</option>
+              <option value="en-US-ChristopherNeural">en-US-ChristopherNeural</option>
+              <option value="en-US-EricNeural">en-US-EricNeural</option>
+            </optgroup>
+            <optgroup label="Female — US English">
+              <option value="en-US-JennyNeural">en-US-JennyNeural</option>
+              <option value="en-US-AriaNeural">en-US-AriaNeural</option>
+              <option value="en-US-MichelleNeural">en-US-MichelleNeural</option>
+            </optgroup>
+            <optgroup label="Male — UK English">
+              <option value="en-GB-RyanNeural">en-GB-RyanNeural</option>
+              <option value="en-GB-ThomasNeural">en-GB-ThomasNeural</option>
+            </optgroup>
+            <optgroup label="Female — UK English">
+              <option value="en-GB-SoniaNeural">en-GB-SoniaNeural</option>
+              <option value="en-GB-LibbyNeural">en-GB-LibbyNeural</option>
+            </optgroup>
+          </select>
+        </div>
+
+        <!-- Rate slider -->
+        <div class="form-group">
+          <label for="rate-slider">
+            Speech rate:
+            <strong id="rate-display">-5%</strong>
+            <span class="hint-inline">(negative = slower, positive = faster)</span>
+          </label>
+          <input type="range" id="rate-slider" name="rate"
+                 min="-50" max="50" step="5" value="-5" />
+          <div class="range-labels">
+            <span>-50% (slowest)</span>
+            <span>0%</span>
+            <span>+50% (fastest)</span>
+          </div>
+        </div>
+
+        <!-- Submit -->
+        <button type="submit" class="btn btn-primary" id="submit-btn">
+          🎙️ Convert to Audiobook
+        </button>
+
+      </form>
+    </section>
+
+    <!-- ── Progress panel (hidden until job starts) ───────────────── -->
+    <section class="card hidden" id="progress-section">
+      <h2>Conversion Progress</h2>
+
+      <div class="job-meta">
+        <span>Job ID: <code id="job-id-display">—</code></span>
+        <span class="status-badge" id="status-badge">pending</span>
+      </div>
+
+      <!-- Overall progress bar -->
+      <div class="progress-bar-wrap">
+        <div class="progress-bar" id="progress-bar" style="width:0%"></div>
+      </div>
+      <p class="progress-label" id="progress-label">Waiting to start…</p>
+
+      <!-- Chapter list -->
+      <ul class="chapter-list" id="chapter-list">
+        <!-- Populated by JS -->
+      </ul>
+
+      <!-- Error message -->
+      <div class="error-box hidden" id="error-box"></div>
+    </section>
+
+    <!-- ── Results panel (hidden until complete) ──────────────────── -->
+    <section class="card hidden" id="results-section">
+      <h2>✅ Audiobook Ready</h2>
+
+      <p>
+        Your audiobook <strong id="book-title-display"></strong> has been
+        generated. Download individual chapters below, or view the full
+        manifest.
+      </p>
+
+      <div class="results-actions">
+        <button class="btn btn-secondary" id="manifest-btn">
+          📋 View Manifest
+        </button>
+        <button class="btn btn-secondary" id="convert-another-btn">
+          🔄 Convert Another
+        </button>
+      </div>
+
+      <ul class="download-list" id="download-list">
+        <!-- Populated by JS -->
+      </ul>
+
+      <!-- Manifest viewer -->
+      <div class="manifest-viewer hidden" id="manifest-viewer">
+        <h3>Manifest</h3>
+        <pre id="manifest-content"></pre>
+      </div>
+    </section>
+
+  </div><!-- /.container -->
+
+  <script src="/static/upload.js"></script>
+</body>
+</html>
