@@ -7,6 +7,7 @@ generating chapter-by-chapter MP3 audiobooks via edge-tts / pyttsx3 / gTTS.
 
 import asyncio
 import json
+import logging
 import os
 import threading
 import uuid
@@ -22,6 +23,8 @@ from flask import (
 
 from audiobook_converter import (
     AudiobookConfig,
+    _PYDUB_AVAILABLE,
+    _PYDUB_IMPORT_ERROR,
     convert_chapter_edge,
     convert_chapter_sync,
     get_safe_filename,
@@ -29,6 +32,23 @@ from audiobook_converter import (
     split_into_chapters,
     write_manifest,
 )
+
+# ---------------------------------------------------------------------------
+# Startup dependency check
+# ---------------------------------------------------------------------------
+
+if not _PYDUB_AVAILABLE:
+    logging.error(
+        "STARTUP CHECK FAILED: pydub is not importable — audio post-processing "
+        "will raise an error for every conversion job. "
+        "Import error was: %s. "
+        "Verify that 'pydub' is listed in requirements.txt and that the package "
+        "was installed successfully (check build logs). "
+        "ffmpeg must also be present on PATH for pydub to function.",
+        _PYDUB_IMPORT_ERROR,
+    )
+else:
+    logging.info("Startup check passed: pydub imported successfully.")
 
 # ---------------------------------------------------------------------------
 # App factory
