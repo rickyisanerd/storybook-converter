@@ -1,0 +1,9 @@
+__pycache__/
+*.pyc
+*.pyo
+.env
+audiobook_output/
+voice_samples/
+*.mp3
+*.zip
+*.wav

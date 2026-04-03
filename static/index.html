@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Audiobook Converter</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f0f4f8;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 48px 20px;
+      color: #2d3748;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 36px;
+    }
+
+    header h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #1a202c;
+    }
+
+    header p {
+      margin-top: 8px;
+      color: #718096;
+      font-size: 1rem;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+      padding: 32px;
+      width: 100%;
+      max-width: 580px;
+      margin-bottom: 20px;
+    }
+
+    /* Drop zone */
+    .drop-zone {
+      border: 2px dashed #cbd5e0;
+      border-radius: 12px;
+      padding: 48px 24px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      background: #f7fafc;
+      user-select: none;
+    }
+    .drop-zone:hover, .drop-zone.dragover {
+      border-color: #4299e1;
+      background: #ebf8ff;
+    }
+    .drop-zone.has-file {
+      border-color: #48bb78;
+      background: #f0fff4;
+    }
+    .drop-zone .dz-icon { font-size: 2.8rem; margin-bottom: 12px; }
+    .drop-zone h3 { font-size: 1.05rem; color: #2d3748; margin-bottom: 6px; }
+    .drop-zone p  { font-size: 0.875rem; color: #a0aec0; }
+
+    /* Options grid */
+    .options {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 24px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #4a5568;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 6px;
+    }
+
+    select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      color: #2d3748;
+      background: #fff;
+      cursor: pointer;
+      appearance: auto;
+    }
+    select:focus { outline: none; border-color: #4299e1; box-shadow: 0 0 0 3px rgba(66,153,225,0.15); }
+
+    /* Buttons */
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 13px;
+      border: none;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 20px;
+      transition: transform 0.15s, box-shadow 0.15s, background 0.15s;
+    }
+    .btn-primary { background: linear-gradient(135deg, #4299e1, #3182ce); color: #fff; }
+    .btn-primary:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(66,153,225,0.4); }
+    .btn-primary:disabled { background: #a0aec0; cursor: not-allowed; }
+    .btn-green { background: linear-gradient(135deg, #48bb78, #38a169); color: #fff; }
+    .btn-green:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(72,187,120,0.4); }
+
+    /* Progress */
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    .progress-header h3 { font-size: 1rem; }
+    .badge {
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .badge-blue  { background: #ebf8ff; color: #2b6cb0; }
+    .badge-green { background: #f0fff4; color: #276749; }
+    .badge-red   { background: #fff5f5; color: #c53030; }
+
+    .bar-bg { background: #e2e8f0; border-radius: 999px; height: 10px; overflow: hidden; }
+    .bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #4299e1, #3182ce);
+      border-radius: 999px;
+      width: 0%;
+      transition: width 0.5s ease;
+    }
+    .bar-label { text-align: center; font-size: 0.875rem; color: #718096; margin-top: 10px; }
+
+    /* Download */
+    #download-section { text-align: center; }
+    #download-section .big-icon { font-size: 3rem; margin-bottom: 12px; }
+    #download-section h3 { margin-bottom: 6px; }
+    #download-section p  { color: #718096; font-size: 0.9rem; margin-bottom: 4px; }
+
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>📚 Audiobook Converter</h1>
+  <p>Upload a manuscript and get chapter-by-chapter MP3s ready for ACX or Audible.</p>
+</header>
+
+<!-- Upload card -->
+<div class="card" id="upload-card">
+  <div class="drop-zone" id="drop-zone" onclick="document.getElementById('file-input').click()">
+    <div class="dz-icon">📄</div>
+    <h3 id="dz-title">Drop your manuscript here</h3>
+    <p id="dz-sub">or click to browse &mdash; .docx and .txt supported</p>
+    <input type="file" id="file-input" accept=".docx,.txt" style="display:none" />
+  </div>
+
+  <div class="options">
+    <div>
+      <label for="voice-select">Narrator Voice</label>
+      <select id="voice-select">
+        <optgroup label="🇺🇸 US English">
+          <option value="en-US-AndrewNeural" selected>Andrew (Male)</option>
+          <option value="en-US-AndrewMultilingualNeural">Andrew Multilingual (Male)</option>
+          <option value="en-US-GuyNeural">Guy (Male)</option>
+          <option value="en-US-ChristopherNeural">Christopher (Male)</option>
+          <option value="en-US-EricNeural">Eric (Male)</option>
+          <option value="en-US-BrianNeural">Brian (Male)</option>
+          <option value="en-US-RogerNeural">Roger (Male)</option>
+          <option value="en-US-SteffanNeural">Steffan (Male)</option>
+          <option value="en-US-AriaNeural">Aria (Female)</option>
+          <option value="en-US-AvaNeural">Ava (Female)</option>
+          <option value="en-US-EmmaNeural">Emma (Female)</option>
+          <option value="en-US-JennyNeural">Jenny (Female)</option>
+          <option value="en-US-MichelleNeural">Michelle (Female)</option>
+        </optgroup>
+        <optgroup label="🇬🇧 UK English">
+          <option value="en-GB-RyanNeural">Ryan (Male)</option>
+          <option value="en-GB-ThomasNeural">Thomas (Male)</option>
+          <option value="en-GB-SoniaNeural">Sonia (Female)</option>
+          <option value="en-GB-LibbyNeural">Libby (Female)</option>
+        </optgroup>
+        <optgroup label="🇦🇺 Australian">
+          <option value="en-AU-WilliamMultilingualNeural">William (Male)</option>
+          <option value="en-AU-NatashaNeural">Natasha (Female)</option>
+        </optgroup>
+        <optgroup label="🇨🇦 Canadian">
+          <option value="en-CA-LiamNeural">Liam (Male)</option>
+          <option value="en-CA-ClaraNeural">Clara (Female)</option>
+        </optgroup>
+      </select>
+    </div>
+    <div>
+      <label for="rate-select">Speaking Rate</label>
+      <select id="rate-select">
+        <option value="-20%">Very Slow (-20%)</option>
+        <option value="-15%">Slow (-15%)</option>
+        <option value="-10%">Slightly Slow (-10%)</option>
+        <option value="-5%" selected>Default (-5%)</option>
+        <option value="0%">Normal (0%)</option>
+        <option value="+5%">Slightly Fast (+5%)</option>
+        <option value="+10%">Fast (+10%)</option>
+      </select>
+    </div>
+  </div>
+
+  <button class="btn btn-primary" id="convert-btn" disabled onclick="startConversion()">
+    Select a file to begin
+  </button>
+</div>
+
+<!-- Progress card -->
+<div class="card hidden" id="progress-card">
+  <div class="progress-header">
+    <h3>Converting audiobook&hellip;</h3>
+    <span class="badge badge-blue" id="status-badge">Processing</span>
+  </div>
+  <div class="bar-bg"><div class="bar-fill" id="bar-fill"></div></div>
+  <p class="bar-label" id="bar-label">Starting up&hellip;</p>
+</div>
+
+<!-- Download card -->
+<div class="card hidden" id="download-card">
+  <div id="download-section">
+    <div class="big-icon">✅</div>
+    <h3>Your audiobook is ready!</h3>
+    <p id="dl-subtitle"></p>
+    <p style="color:#a0aec0;font-size:0.8rem;margin-bottom:20px">Includes all chapters + manifest.json</p>
+    <button class="btn btn-green" onclick="downloadFile()">⬇️ Download ZIP</button>
+    <button class="btn btn-primary" onclick="resetUI()">Convert Another Book</button>
+  </div>
+</div>
+
+<script>
+  let selectedFile = null;
+  let jobId = null;
+  let pollTimer = null;
+
+  // --- Drag and drop ---
+  const dz = document.getElementById('drop-zone');
+
+  dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('dragover'); });
+  dz.addEventListener('dragleave', ()  => dz.classList.remove('dragover'));
+  dz.addEventListener('drop', e => {
+    e.preventDefault();
+    dz.classList.remove('dragover');
+    if (e.dataTransfer.files[0]) setFile(e.dataTransfer.files[0]);
+  });
+
+  document.getElementById('file-input').addEventListener('change', e => {
+    if (e.target.files[0]) setFile(e.target.files[0]);
+  });
+
+  function setFile(file) {
+    if (!/\.(docx|txt)$/i.test(file.name)) {
+      alert('Please select a .docx or .txt file.');
+      return;
+    }
+    selectedFile = file;
+    dz.classList.add('has-file');
+    document.getElementById('dz-title').textContent = file.name;
+    document.getElementById('dz-sub').textContent =
+      `${(file.size / 1024).toFixed(1)} KB \u2014 click to change`;
+    const btn = document.getElementById('convert-btn');
+    btn.disabled = false;
+    btn.textContent = '🎙️ Convert to Audiobook';
+  }
+
+  // --- Start conversion ---
+  async function startConversion() {
+    if (!selectedFile) return;
+
+    const btn = document.getElementById('convert-btn');
+    btn.disabled = true;
+    btn.textContent = 'Uploading…';
+
+    const formData = new FormData();
+    formData.append('file', selectedFile);
+    formData.append('voice', document.getElementById('voice-select').value);
+    formData.append('rate',  document.getElementById('rate-select').value);
+
+    let res, data;
+    try {
+      res  = await fetch('/convert', { method: 'POST', body: formData });
+      data = await res.json();
+    } catch (err) {
+      alert('Upload failed: ' + err.message);
+      btn.disabled = false;
+      btn.textContent = '🎙️ Convert to Audiobook';
+      return;
+    }
+
+    if (data.error) { alert(data.error); btn.disabled = false; return; }
+
+    jobId = data.job_id;
+    document.getElementById('progress-card').classList.remove('hidden');
+    pollTimer = setInterval(pollStatus, 2000);
+  }
+
+  // --- Poll for status ---
+  async function pollStatus() {
+    let data;
+    try {
+      const res = await fetch(`/status/${jobId}`);
+      data = await res.json();
+    } catch { return; }
+
+    const { status, total, completed } = data;
+
+    if (total > 0) {
+      const pct = Math.round((completed / total) * 100);
+      document.getElementById('bar-fill').style.width  = pct + '%';
+      document.getElementById('bar-label').textContent =
+        `Chapter ${completed} of ${total} \u2014 ${pct}%`;
+    } else {
+      document.getElementById('bar-label').textContent = 'Reading manuscript…';
+    }
+
+    if (status === 'complete') {
+      clearInterval(pollTimer);
+      document.getElementById('bar-fill').style.width = '100%';
+      document.getElementById('status-badge').textContent = 'Complete';
+      document.getElementById('status-badge').className  = 'badge badge-green';
+      document.getElementById('bar-label').textContent   = 'Done!';
+      setTimeout(() => {
+        document.getElementById('progress-card').classList.add('hidden');
+        document.getElementById('dl-subtitle').textContent =
+          `${total} chapter${total !== 1 ? 's' : ''} converted successfully`;
+        document.getElementById('download-card').classList.remove('hidden');
+      }, 800);
+
+    } else if (status === 'error') {
+      clearInterval(pollTimer);
+      document.getElementById('status-badge').textContent = 'Error';
+      document.getElementById('status-badge').className  = 'badge badge-red';
+      document.getElementById('bar-label').textContent   = data.error || 'An error occurred.';
+    }
+  }
+
+  function downloadFile() {
+    window.location.href = `/download/${jobId}`;
+  }
+
+  function resetUI() {
+    clearInterval(pollTimer);
+    selectedFile = null; jobId = null;
+    document.getElementById('download-card').classList.add('hidden');
+    document.getElementById('progress-card').classList.add('hidden');
+    dz.classList.remove('has-file');
+    document.getElementById('dz-title').textContent = 'Drop your manuscript here';
+    document.getElementById('dz-sub').textContent   = 'or click to browse \u2014 .docx and .txt supported';
+    document.getElementById('bar-fill').style.width = '0%';
+    document.getElementById('status-badge').textContent = 'Processing';
+    document.getElementById('status-badge').className   = 'badge badge-blue';
+    const btn = document.getElementById('convert-btn');
+    btn.disabled = true;
+    btn.textContent = 'Select a file to begin';
+    document.getElementById('file-input').value = '';
+  }
+</script>
+
+</body>
+</html>
