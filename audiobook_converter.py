@@ -23,6 +23,7 @@ Author: Ricky Carter / Ricky's Automations
 
 import argparse
 import asyncio
+import logging
 import os
 import re
 import sys
@@ -31,6 +32,20 @@ import time
 from pathlib import Path
 from dataclasses import dataclass, field
 from typing import Optional
+
+try:
+    from pydub import AudioSegment as _AudioSegment  # noqa: F401 – validate at import time
+    _PYDUB_AVAILABLE = True
+except ImportError as _pydub_import_error:
+    _PYDUB_AVAILABLE = False
+    _PYDUB_IMPORT_ERROR = _pydub_import_error
+    logging.warning(
+        "pydub could not be imported: %s. "
+        "Audio post-processing will be unavailable.",
+        _pydub_import_error,
+    )
+else:
+    _PYDUB_IMPORT_ERROR = None
 
 
 # ---------------------------------------------------------------------------
@@ -284,19 +299,18 @@ def postprocess_audio(input_path: str, output_path: str, config: AudiobookConfig
     - Mono
     - Add room tone (silence) at start/end
     """
-    try:
-        from pydub import AudioSegment
-    except ImportError:
-        print("WARNING: pydub not installed. Skipping post-processing.")
-        print("         Run: pip install pydub")
-        print("         Also install ffmpeg: https://ffmpeg.org/download.html")
-        # Just copy the raw file
-        if input_path != output_path:
-            import shutil
-            shutil.copy2(input_path, output_path)
-        return
+    if not _PYDUB_AVAILABLE:
+        raise ImportError(
+            f"pydub is required for audio post-processing but could not be imported: "
+            f"{_PYDUB_IMPORT_ERROR}. "
+            f"Ensure pydub is installed ('pip install pydub') and that ffmpeg is "
+            f"available on PATH."
+        )
+
+    from pydub import AudioSegment
 
     audio = AudioSegment.from_file(input_path)
+
 
     # Convert to mono
     audio = audio.set_channels(config.channels)
